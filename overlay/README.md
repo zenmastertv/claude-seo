@@ -9,7 +9,9 @@ Fork-only model/effort overrides for the claude-seo subagents. Lives outside
   Idempotent; prompt bodies are never touched.
 - `skills/<skill>.md`: text appended to `skills/<skill>/SKILL.md` at build time.
   `seo-audit.md` sets the quick/full audit modes and the archive-first,
-  `{domain}-audit/` folder rules the SEO audit viewer depends on.
+  `{domain}-audit/` folder rules the SEO audit viewer depends on. `seo.md`
+  makes the `/seo` hub load `seo-audit` for audit commands, since `/seo audit`
+  runs the hub skill and would otherwise never see those rules.
 
 - `build_plugin_branch.sh`: rebuilds the fork's `plugin` branch as
   upstream/main + this overlay, and pushes it. Never edit `plugin` by hand.
