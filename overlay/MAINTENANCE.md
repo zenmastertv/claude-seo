@@ -73,6 +73,85 @@ Never `pip install` by hand; setup builds an isolated environment.
 
 ## 5. Google credentials
 
+Set `L` once per shell to shorten the commands below (fish:
+`set L $HOME/.claude/plugins/marketplaces/zenmastertv-claude-seo/scripts/claude-seo`):
+
+```bash
+L="$HOME/.claude/plugins/marketplaces/zenmastertv-claude-seo/scripts/claude-seo"
+```
+
+### From scratch (new machine or new Google Cloud project)
+
+This is the browser OAuth sign-in (no service account key file).
+
+**a. Google Cloud project and APIs**
+
+1. console.cloud.google.com → pick or create a project (project picker, top bar).
+2. APIs & Services → Library → enable:
+   - PageSpeed Insights API
+   - Chrome UX Report API
+   - Google Search Console API
+   - Web Search Indexing API (only if you want to request indexing)
+   - Google Analytics Data API (only if you use GA4)
+
+**b. API key** (PageSpeed + CrUX)
+
+1. APIs & Services → Credentials → Create credentials → API key.
+2. Edit it: Application restrictions = **None**; API restrictions = PageSpeed
+   Insights API + Chrome UX Report API. Do not reuse a key locked to a website
+   referrer: calls from this machine get rejected.
+
+**c. OAuth consent screen**
+
+1. APIs & Services → OAuth consent screen → get started → **External**.
+2. App name anything (e.g. `claude-seo`), your email as support/contact.
+3. Audience → add your Google account as a **test user**.
+4. Audience → **Publish app** (otherwise the sign-in expires every 7 days).
+
+**d. OAuth client + client secret**
+
+1. Credentials → Create credentials → OAuth client ID → type
+   **Web application**.
+2. Authorized redirect URIs → add exactly `http://localhost:8085`
+   (http, no trailing slash). Save.
+3. Download the JSON. It lands in `~/Downloads` as
+   `client_secret_<long-id>.apps.googleusercontent.com.json`.
+
+**e. Put the files in place**
+
+```bash
+mkdir -p ~/.config/claude-seo && chmod 700 ~/.config/claude-seo
+mv ~/Downloads/client_secret_*.json ~/.config/claude-seo/client_secret.json
+chmod 600 ~/.config/claude-seo/client_secret.json
+```
+
+**f. Sign in through the browser**
+
+```bash
+"$L" run google_auth.py --auth --creds ~/.config/claude-seo/client_secret.json
+```
+
+A browser tab opens: sign in with the Google account that owns the site in
+Search Console and approve. "This app isn't verified" is expected for your own
+app: Advanced → Go to (app name). It prints `token saved`, writes
+`oauth-token.json`, and creates `google-api.json` with `oauth_client_path`.
+
+**g. Add the API key (and GA4 if used)** to `~/.config/claude-seo/google-api.json`,
+keeping the `oauth_client_path` line it already has:
+
+```json
+{
+  "oauth_client_path": "/home/andrea/.config/claude-seo/client_secret.json",
+  "api_key": "YOUR_KEY",
+  "ga4_property_id": "properties/123456789"
+}
+```
+
+Then `chmod 600 ~/.config/claude-seo/google-api.json` and run the `--check`
+below: PageSpeed, CrUX, CrUX History, Search Console and Indexing should be OK.
+
+### Day to day
+
 Files in `~/.config/claude-seo/` (all `chmod 600`, never commit them):
 
 | File | What it is |
@@ -80,12 +159,6 @@ Files in `~/.config/claude-seo/` (all `chmod 600`, never commit them):
 | `google-api.json` | `api_key` (PageSpeed, CrUX), `oauth_client_path`, optional `ga4_property_id` |
 | `client_secret.json` | OAuth client (Web application, redirect URI `http://localhost:8085`) |
 | `oauth-token.json` | Search Console / Indexing sign-in, written by `--auth` |
-
-Set `L` once per shell to shorten the commands (fish: `set L ...`):
-
-```bash
-L="$HOME/.claude/plugins/marketplaces/zenmastertv-claude-seo/scripts/claude-seo"
-```
 
 Check what works:
 
