@@ -1,7 +1,8 @@
 ---
 name: seo-sitemap
 description: Sitemap architect. Validates XML sitemaps, generates new ones with industry templates, and enforces quality gates for location pages.
-model: sonnet
+model: claude-haiku-5-5
+effort: medium
 maxTurns: 30
 tools: Read, Bash, Write, Glob
 ---

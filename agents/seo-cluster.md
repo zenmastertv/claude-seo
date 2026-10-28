@@ -4,7 +4,8 @@ description: >
   Semantic topic clustering analysis using SERP overlap methodology. Expands seed
   keywords, performs pairwise SERP comparison, classifies intent, designs
   hub-and-spoke content architecture, and generates internal link matrices.
-model: opus
+model: claude-opus-5-5
+effort: medium
 maxTurns: 40
 tools: WebSearch, WebFetch, Read, Write, Glob, Grep
 ---

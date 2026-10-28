@@ -1,7 +1,8 @@
 ---
 name: seo-backlinks
 description: Backlink profile analyst using free and paid sources. Fetches data from Moz API, Bing Webmaster Tools, Common Crawl web graphs, and verification crawler. Merges multi-source data with confidence-weighted scoring.
-model: sonnet
+model: claude-sonnet-5-5
+effort: medium
 maxTurns: 40
 tools: Read, Bash, Write, Glob, Grep
 ---
