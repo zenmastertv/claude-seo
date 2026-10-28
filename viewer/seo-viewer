@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Launcher for the SEO audit viewer.
+#   seo-viewer [dir]              start the viewer on the audits in dir and open the browser
+#   seo-viewer archive <domain>   rename <domain>-audit to <domain>-<audit date>-audit before re-running an audit
+# Default dir: the current directory if it holds *-audit folders, else the folder this viewer lives in.
+set -euo pipefail
+
+VIEWER_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+PORT="${PORT:-4173}"
+
+pick_root() {
+  if [[ -n "${1:-}" ]]; then
+    readlink -f "$1"
+  elif compgen -G "$PWD/*-audit/audit-data.json" >/dev/null; then
+    echo "$PWD"
+  else
+    dirname "$VIEWER_DIR"
+  fi
+}
+
+if [[ "${1:-}" == "archive" ]]; then
+  domain="${2:?usage: seo-viewer archive <domain> [dir]}"
+  root="$(pick_root "${3:-}")"
+  src="$root/$domain-audit"
+  [[ -d "$src" ]] || { echo "No $src folder to archive." >&2; exit 1; }
+  date="$(grep -oP 'Audit date:\s*\K\d{4}-\d{2}-\d{2}' "$src/FULL-AUDIT-REPORT.md" 2>/dev/null | head -1 || true)"
+  date="${date:-$(date -r "$src/audit-data.json" +%F)}"
+  dest="$root/$domain-$date-audit"
+  [[ -e "$dest" ]] && { echo "$dest already exists; not overwriting." >&2; exit 1; }
+  mv "$src" "$dest"
+  echo "Archived to $dest"
+  echo "Run the new audit now; the viewer will show both and the score history."
+  exit 0
+fi
+
+root="$(pick_root "${1:-}")"
+url="http://localhost:$PORT"
+
+# Already running (e.g. from another terminal): just open it.
+if curl -fs "$url/api/audits" >/dev/null 2>&1; then
+  echo "Viewer already running at $url"
+  xdg-open "$url" >/dev/null 2>&1 || true
+  exit 0
+fi
+
+node "$VIEWER_DIR/server.js" "$root" --port "$PORT" &
+server=$!
+trap 'kill $server 2>/dev/null' INT TERM EXIT
+
+for _ in $(seq 50); do
+  curl -fs "$url/api/audits" >/dev/null 2>&1 && break
+  sleep 0.1
+done
+xdg-open "$url" >/dev/null 2>&1 || echo "Open $url in your browser."
+echo "Press Ctrl+C to stop."
+wait "$server"
