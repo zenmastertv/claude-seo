@@ -41,9 +41,7 @@ first; `rebuild` pushes that branch and uses it.
    ```
 
 3. `overlay/seo.sh reinstall`, start a new Claude session, run `/seo setup`.
-4. Copy the `/seo full audit` rule into `~/.claude/CLAUDE.md` from the other
-   machine (it is not stored in this repo).
-5. Google: download the client secret (below), then `overlay/seo.sh google`.
+4. Google: download the client secret (below), then `overlay/seo.sh google`.
 
 ## Google credentials
 
@@ -96,9 +94,10 @@ All in `~/.config/claude-seo/`, `chmod 600`, never committed:
 
 ## Running audits
 
-- `/seo audit <url>` → quick, cheaper pass.
-- `/seo full audit <url>` → all subagents in parallel, full 0–100 score
-  (rule lives in `~/.claude/CLAUDE.md`).
+- `/seo audit <url>` → quick, cheaper pass (core subagents only).
+- `/seo full audit <url>` → all subagents in parallel, full 0–100 score.
+- Both archive the previous `{domain}-audit/` first and write a new one the
+  SEO audit viewer can show (rule: `overlay/skills/seo-audit.md`).
 - `/seo google report full` → PDF afterwards.
 
 ## Extras

@@ -32,6 +32,14 @@ cd "${BUILD_DIR}"
 git checkout --quiet "${OVERLAY_BRANCH}" -- overlay
 python3 overlay/apply_agent_overlay.py --repo >/dev/null
 
+# overlay/skills/<skill>.md is appended to skills/<skill>/SKILL.md.
+for patch in overlay/skills/*.md; do
+    [[ -e "${patch}" ]] || continue
+    skill_file="skills/$(basename "${patch}" .md)/SKILL.md"
+    [[ -f "${skill_file}" ]] || { echo "error: ${patch} has no ${skill_file}" >&2; exit 1; }
+    cat "${patch}" >> "${skill_file}"
+done
+
 UPSTREAM_SHA="$(git rev-parse --short "${UPSTREAM_REF}")"
 OVERLAY_SHA="$(git rev-parse --short "${OVERLAY_BRANCH}")"
 python3 - "${UPSTREAM_SHA}" "${OVERLAY_SHA}" "${MARKETPLACE_NAME}" <<'PY'
