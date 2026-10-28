@@ -8,16 +8,24 @@ Fork-only model/effort overrides for the claude-seo subagents. Lives outside
 - `apply_agent_overlay.py`: writes those values into the agents' frontmatter.
   Idempotent; prompt bodies are never touched.
 
-## Updating from upstream
+- `build_plugin_branch.sh`: rebuilds the fork's `plugin` branch as
+  upstream/main + this overlay, and pushes it. Never edit `plugin` by hand.
+
+## Install (plugin)
 
 ```bash
-git fetch upstream
-git switch local/agent-tuning
-git rebase upstream/main
-bash install.sh                            # or however you reinstall
-python3 overlay/apply_agent_overlay.py     # re-apply to ~/.claude/agents
-git push --force-with-lease origin local/agent-tuning
+claude plugin marketplace add zenmastertv/claude-seo#plugin
+claude plugin install claude-seo@zenmastertv-claude-seo
 ```
 
-Use `--dry-run` to preview, `--repo` to patch the checkout's `agents/` and
-`extensions/*/agents/` copies instead of the installed ones.
+## Updating from upstream (or after editing agents.json)
+
+```bash
+git switch local/agent-tuning              # commit any agents.json change here
+overlay/build_plugin_branch.sh             # rebuild + push the plugin branch
+claude plugin marketplace update zenmastertv-claude-seo
+claude plugin update claude-seo@zenmastertv-claude-seo
+```
+
+Then start a new session. Use `apply_agent_overlay.py --dry-run` to preview,
+`--repo` to patch a checkout, or no flag for a manual `~/.claude/agents` install.
