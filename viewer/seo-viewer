@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Launcher for the SEO audit viewer.
+#   seo-viewer [dir]              start the viewer on the audits in dir and open the browser
+#   seo-viewer archive <domain>   rename <domain>-audit to <domain>-<yyyy-mm-dd>-<hhmm>-audit before re-running an audit
+# Default dir: the current directory if it holds *-audit folders, else the folder above
+# wherever this viewer lives (e.g. when double-clicked from Finder, which starts in ~).
+set -euo pipefail
+
+VIEWER_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+PORT="${PORT:-4173}"
+
+# Open a URL in the default browser: `open` on macOS, `xdg-open` on Linux.
+open_url() {
+  if command -v open >/dev/null 2>&1 && [[ "$(uname)" == "Darwin" ]]; then
+    open "$1"
+  else
+    xdg-open "$1" >/dev/null 2>&1
+  fi
+}
+
+pick_root() {
+  if [[ -n "${1:-}" ]]; then
+    readlink -f "$1"
+  elif compgen -G "$PWD/*-audit/audit-data.json" >/dev/null; then
+    echo "$PWD"
+  else
+    dirname "$VIEWER_DIR"
+  fi
+}
+
+if [[ "${1:-}" == "archive" ]]; then
+  domain="${2:?usage: seo-viewer archive <domain> [dir]}"
+  root="$(pick_root "${3:-}")"
+  src="$root/$domain-audit"
+  [[ -d "$src" ]] || { echo "No $src folder to archive." >&2; exit 1; }
+  # Date and HH:MM from the report's "Audit date: YYYY-MM-DD HH:MM" line, else audit-data.json's mtime.
+  stamp="$(sed -nE 's/.*Audit date:[[:space:]]*([0-9]{4}-[0-9]{2}-[0-9]{2})([ T]([0-9]{2}):?([0-9]{2}))?.*/\1 \3\4/p' "$src/FULL-AUDIT-REPORT.md" 2>/dev/null | head -1 || true)"
+  date="${stamp%% *}"
+  hhmm="${stamp#* }"
+  [[ -n "$date" ]] || date="$(date -r "$src/audit-data.json" +%F)"
+  [[ "$hhmm" =~ ^[0-9]{4}$ ]] || hhmm="$(date -r "$src/audit-data.json" +%H%M)"
+  dest="$root/$domain-$date-$hhmm-audit"
+  [[ -e "$dest" ]] && { echo "$dest already exists; not overwriting." >&2; exit 1; }
+  mv "$src" "$dest"
+  echo "Archived to $dest"
+  echo "Run the new audit now; the viewer will show both and the score history."
+  exit 0
+fi
+
+root="$(pick_root "${1:-}")"
+url="http://localhost:$PORT"
+
+# Already running (e.g. from another terminal): stop it so this folder and the current code are used.
+# Only a viewer server.js is stopped; anything else on the port is left alone.
+for pid in $(lsof -ti "tcp:$PORT" -sTCP:LISTEN 2>/dev/null || true); do
+  if ps -o command= -p "$pid" | grep -q "viewer/server.js"; then
+    echo "Stopping the viewer already running on port $PORT (pid $pid)."
+    kill "$pid"
+  else
+    echo "Port $PORT is used by another program (pid $pid). Run: PORT=4174 seo-viewer" >&2
+    exit 1
+  fi
+done
+for _ in $(seq 50); do
+  curl -fs "$url" >/dev/null 2>&1 || break
+  sleep 0.1
+done
+
+node "$VIEWER_DIR/server.js" "$root" --port "$PORT" &
+server=$!
+trap 'kill $server 2>/dev/null' INT TERM EXIT
+
+for _ in $(seq 50); do
+  curl -fs "$url/api/audits" >/dev/null 2>&1 && break
+  sleep 0.1
+done
+open_url "$url" || echo "Open $url in your browser."
+echo "Press Ctrl+C to stop."
+wait "$server"
