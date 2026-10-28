@@ -1,28 +1,28 @@
 {
   "_comment": "Local model/effort overrides for claude-seo subagents. Applied by overlay/apply_agent_overlay.py. Upstream never touches this directory, so upstream merges never conflict with it.",
   "agents": {
-    "seo-drift":       {"model": "haiku"},
-    "seo-sitemap":     {"model": "haiku"},
-    "seo-google":      {"model": "haiku"},
-    "seo-matomo":      {"model": "haiku"},
-    "seo-performance": {"model": "haiku"},
-    "seo-dataforseo":  {"model": "haiku"},
-    "seo-image-gen":   {"model": "haiku"},
+    "seo-drift":       {"model": "claude-haiku-5-5", "effort": "medium"},
+    "seo-sitemap":     {"model": "claude-haiku-5-5", "effort": "medium"},
+    "seo-google":      {"model": "claude-haiku-5-5", "effort": "medium"},
+    "seo-matomo":      {"model": "claude-haiku-5-5", "effort": "medium"},
+    "seo-performance": {"model": "claude-haiku-5-5", "effort": "medium"},
+    "seo-dataforseo":  {"model": "claude-haiku-5-5", "effort": "medium"},
+    "seo-image-gen":   {"model": "claude-haiku-5-5", "effort": "medium"},
 
-    "seo-visual":      {"model": "sonnet", "effort": "low"},
-    "seo-agentic":     {"model": "sonnet", "effort": "low"},
-    "seo-ecommerce":   {"model": "sonnet", "effort": "low"},
+    "seo-visual":      {"model": "claude-sonnet-5-5", "effort": "low"},
+    "seo-agentic":     {"model": "claude-sonnet-5-5", "effort": "low"},
+    "seo-ecommerce":   {"model": "claude-sonnet-5-5", "effort": "low"},
 
-    "seo-technical":   {"model": "sonnet", "effort": "medium"},
-    "seo-schema":      {"model": "sonnet", "effort": "medium"},
-    "seo-local":       {"model": "sonnet", "effort": "medium"},
-    "seo-maps":        {"model": "sonnet", "effort": "medium"},
-    "seo-backlinks":   {"model": "sonnet", "effort": "medium"},
-    "seo-flow":        {"model": "sonnet", "effort": "medium"},
+    "seo-technical":   {"model": "claude-sonnet-5-5", "effort": "medium"},
+    "seo-schema":      {"model": "claude-sonnet-5-5", "effort": "medium"},
+    "seo-local":       {"model": "claude-sonnet-5-5", "effort": "medium"},
+    "seo-maps":        {"model": "claude-sonnet-5-5", "effort": "medium"},
+    "seo-backlinks":   {"model": "claude-sonnet-5-5", "effort": "medium"},
+    "seo-flow":        {"model": "claude-sonnet-5-5", "effort": "medium"},
 
-    "seo-geo":         {"model": "opus", "effort": "medium"},
-    "seo-sxo":         {"model": "opus", "effort": "medium"},
-    "seo-content":     {"model": "opus", "effort": "medium"},
-    "seo-cluster":     {"model": "opus", "effort": "medium"}
+    "seo-geo":         {"model": "claude-opus-5-5", "effort": "medium"},
+    "seo-sxo":         {"model": "claude-opus-5-5", "effort": "medium"},
+    "seo-content":     {"model": "claude-opus-5-5", "effort": "medium"},
+    "seo-cluster":     {"model": "claude-opus-5-5", "effort": "medium"}
   }
 }
