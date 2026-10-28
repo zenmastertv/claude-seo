@@ -13,6 +13,9 @@ Fork-only model/effort overrides for the claude-seo subagents. Lives outside
   makes the `/seo` hub load `seo-audit` for audit commands, since `/seo audit`
   runs the hub skill and would otherwise never see those rules.
 
+- `score_audit.py`: scores `audit-data.json` with a fixed rubric and lists finding
+  changes against the previous audit. `skills/seo-audit.md` tells audits to run it.
+
 - `build_plugin_branch.sh`: rebuilds the fork's `plugin` branch as
   upstream/main + this overlay, and pushes it. Never edit `plugin` by hand.
 
