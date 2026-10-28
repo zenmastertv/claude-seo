@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Archive live {domain}-audit/ folders so the next /seo audit starts fresh.
+"""Archive a copy of each live {domain}-audit/ folder before the next /seo audit.
 
-Renames each live audit folder (one holding audit-data.json) to
+Copies each live audit folder (one holding audit-data.json) to
 {domain}-{yyyy-mm-dd}-{hhmm}-audit, the name the SEO audit viewer reads as an
-older audit of the same domain. The date and time come from the report's
-"Audit date: YYYY-MM-DD [HH:MM]" line, else from audit-data.json's modified
-time. Nothing is deleted or overwritten.
+older audit of the same domain. The live folder stays in place, so the next
+audit can build on it. The date and time are when the audit last ran: the
+newest modified time of its audit-data.json, FULL-AUDIT-REPORT.md and
+ACTION-PLAN.md (the time typed into the report is not reliable). Nothing is
+deleted or overwritten; a folder already archived at that time is skipped.
 
 Usage:
     archive_audit.py [--dir DIR] [--domain DOMAIN] [--dry-run]
@@ -17,11 +19,12 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
 from datetime import datetime
 
 ARCHIVED_RE = re.compile(r"-\d{4}-\d{2}-\d{2}(?:-\d{4})?-audit$")
-DATE_RE = re.compile(r"Audit date:\s*(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}):?(\d{2}))?")
+RUN_FILES = ("audit-data.json", "FULL-AUDIT-REPORT.md", "ACTION-PLAN.md")
 
 
 def live_audits(root, domain=None):
@@ -42,27 +45,21 @@ def live_audits(root, domain=None):
 
 
 def audit_stamp(path):
-    """Return (yyyy-mm-dd, hhmm) for the audit in path."""
-    mtime = datetime.fromtimestamp(os.path.getmtime(os.path.join(path, "audit-data.json")))
-    report = os.path.join(path, "FULL-AUDIT-REPORT.md")
-    if os.path.isfile(report):
-        with open(report, encoding="utf-8", errors="replace") as f:
-            match = DATE_RE.search(f.read())
-        if match:
-            hhmm = match.group(2) + match.group(3) if match.group(2) else mtime.strftime("%H%M")
-            return match.group(1), hhmm
-    return mtime.strftime("%Y-%m-%d"), mtime.strftime("%H%M")
+    """Return (yyyy-mm-dd, hhmm) for when the audit in path last ran."""
+    times = [os.path.getmtime(os.path.join(path, f)) for f in RUN_FILES if os.path.isfile(os.path.join(path, f))]
+    ran = datetime.fromtimestamp(max(times))
+    return ran.strftime("%Y-%m-%d"), ran.strftime("%H%M")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dir", default=os.getcwd(), help="folder holding the *-audit folders (default: current)")
     parser.add_argument("--domain", help="archive only {domain}-audit")
-    parser.add_argument("--dry-run", action="store_true", help="show the renames without doing them")
+    parser.add_argument("--dry-run", action="store_true", help="show the copies without making them")
     args = parser.parse_args()
 
     root = os.path.abspath(args.dir)
-    result = {"dir": root, "dry_run": args.dry_run, "archived": [], "errors": []}
+    result = {"dir": root, "dry_run": args.dry_run, "archived": [], "skipped": [], "errors": []}
     if not os.path.isdir(root):
         result["errors"].append(f"{root} is not a folder")
         print(json.dumps(result, indent=2))
@@ -73,13 +70,14 @@ def main():
         domain = name[: -len("-audit")]
         dest = f"{domain}-{date}-{hhmm}-audit"
         if os.path.exists(os.path.join(root, dest)):
-            result["errors"].append(f"{dest} already exists; {name} left as is")
+            result["skipped"].append({"from": name, "to": dest, "reason": "already archived"})
             continue
         if not args.dry_run:
-            os.rename(os.path.join(root, name), os.path.join(root, dest))
+            # copy2 keeps modified times, so the copy keeps the same run time.
+            shutil.copytree(os.path.join(root, name), os.path.join(root, dest), copy_function=shutil.copy2)
         result["archived"].append({"from": name, "to": dest})
 
-    if not result["archived"] and not result["errors"]:
+    if not (result["archived"] or result["skipped"] or result["errors"]):
         result["message"] = "No live *-audit folder with audit-data.json found."
     print(json.dumps(result, indent=2))
     return 1 if result["errors"] else 0

@@ -96,9 +96,10 @@ All in `~/.config/claude-seo/`, `chmod 600`, never committed:
 
 Run these in the folder the SEO audit viewer reads (`~/Github/SEOAudit`):
 
-- `/seo-archive` → renames the current `{domain}-audit/` to
-  `{domain}-{yyyy-mm-dd}-{hhmm}-audit/`, so the viewer keeps it as history.
-- `/seo audit <url>` → upstream audit, unchanged; writes a new `{domain}-audit/`.
+- `/seo-archive` → copies the current `{domain}-audit/` to
+  `{domain}-{yyyy-mm-dd}-{hhmm}-audit/` (when it last ran), so the viewer keeps it
+  as history. The live folder stays.
+- `/seo audit <url>` → upstream audit, unchanged; updates `{domain}-audit/`.
 - `/seo google report full` → PDF afterwards.
 
 ## Extras

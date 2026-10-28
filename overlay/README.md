@@ -10,8 +10,9 @@ skill (`seo-archive`). Upstream skills are not changed. Lives outside
   Idempotent; prompt bodies are never touched.
 - `plugin/`: new files copied into the plugin at build time. The build fails if
   one would replace an upstream file. `plugin/skills/seo-archive/` adds
-  `/seo-archive`, which renames the current `{domain}-audit/` to
-  `{domain}-{yyyy-mm-dd}-{hhmm}-audit/` so the SEO audit viewer keeps it as history.
+  `/seo-archive`, which copies the current `{domain}-audit/` to
+  `{domain}-{yyyy-mm-dd}-{hhmm}-audit/` (when it last ran) so the SEO audit viewer
+  keeps it as history. The live folder stays for the next audit.
 
 - `build_plugin_branch.sh`: rebuilds the fork's `plugin` branch as
   upstream/main + this overlay, and pushes it. Never edit `plugin` by hand.
