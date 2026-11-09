@@ -31,6 +31,7 @@ git -C "${REPO_ROOT}" worktree add --quiet --detach "${BUILD_DIR}" "${UPSTREAM_R
 cd "${BUILD_DIR}"
 git checkout --quiet "${OVERLAY_BRANCH}" -- overlay
 python3 overlay/apply_agent_overlay.py --repo >/dev/null
+python3 overlay/patch_runtime.py >/dev/null
 
 # overlay/plugin/ adds new files (e.g. skills/seo-archive/); it never replaces upstream ones.
 (cd overlay/plugin && find . -type f) | while read -r f; do

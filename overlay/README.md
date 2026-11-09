@@ -8,6 +8,10 @@ skill (`seo-archive`). Upstream skills are not changed. Lives outside
   (`low`/`medium`/`high`/`xhigh`/`max`) per agent.
 - `apply_agent_overlay.py`: writes those values into the agents' frontmatter.
   Idempotent; prompt bodies are never touched.
+- `patch_runtime.py`: adds Homebrew's lib directory to the library path that
+  `scripts/runtime.py` gives its child processes on macOS, so WeasyPrint finds
+  pango for PDF reports. Runs at build time and fails the build if upstream
+  changes the code it anchors on.
 - `plugin/`: new files copied into the plugin at build time. The build fails if
   one would replace an upstream file. `plugin/skills/seo-archive/` adds
   `/seo-archive`, which copies the current `{domain}-audit/` to
