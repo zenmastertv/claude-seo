@@ -4,7 +4,8 @@ description: >
   Search Experience Optimization analyst. Performs SERP backwards analysis to detect
   page-type mismatches, derives user stories from intent signals, and scores pages
   from multiple persona perspectives. Identifies why well-optimized content fails to rank.
-model: opus
+model: claude-opus-5-5
+effort: medium
 maxTurns: 35
 tools: Read, Bash, WebFetch, WebSearch, Glob, Grep, Write
 ---

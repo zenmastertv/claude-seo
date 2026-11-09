@@ -1,7 +1,8 @@
 ---
 name: seo-agentic
 description: Agent-readiness analyst. Explains the Lighthouse Agentic Browsing fraction and audits the accessibility tree for agents, robots.txt and Content-Signal for AI agents, llms.txt, Markdown delivery, ai-catalog.json, /.well-known discovery files, and WebMCP tools.
-model: sonnet
+model: claude-sonnet-5-5
+effort: low
 maxTurns: 35
 tools: Read, Bash, Write, Glob, Grep
 ---

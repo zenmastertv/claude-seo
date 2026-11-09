@@ -1,7 +1,8 @@
 ---
 name: seo-local
 description: Local SEO specialist. Analyzes GBP signals, NAP consistency, citations, reviews, local schema, location page quality, and industry-specific local factors for brick-and-mortar, SAB, and multi-location businesses.
-model: sonnet
+model: claude-sonnet-5-5
+effort: medium
 maxTurns: 32
 tools: Read, Bash, WebFetch, Glob, Grep, Write
 ---

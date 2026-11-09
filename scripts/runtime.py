@@ -217,6 +217,14 @@ def _safe_env(status: dict[str, Any]) -> dict[str, str]:
     env["PYTHONUTF8"] = "1"
     env["PYTHONIOENCODING"] = "utf-8"
     env["PLAYWRIGHT_BROWSERS_PATH"] = str(status["data_dir"] / "ms-playwright")
+    if sys.platform == "darwin":
+        # zen overlay: Homebrew libraries for WeasyPrint
+        paths = [p for p in env.get("DYLD_FALLBACK_LIBRARY_PATH", "").split(":") if p]
+        for lib in ("/opt/homebrew/lib", "/usr/local/lib"):
+            if lib not in paths and os.path.isdir(lib):
+                paths.append(lib)
+        if paths:
+            env["DYLD_FALLBACK_LIBRARY_PATH"] = ":".join(paths)
     return env
 
 

@@ -1,7 +1,8 @@
 ---
 name: seo-matomo
 description: Matomo Reporting API analyst. Fetches organic traffic, top landing pages, device / country breakdowns, and referrer analysis from a self-hosted or Matomo Cloud instance. Pairs with seo-google for users who want GA4 alternative or supplement.
-model: sonnet
+model: claude-haiku-5-5
+effort: medium
 maxTurns: 35
 tools: Read, Bash, Write, Glob, Grep
 ---

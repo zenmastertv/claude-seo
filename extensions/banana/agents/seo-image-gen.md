@@ -1,7 +1,8 @@
 ---
 name: seo-image-gen
 description: SEO image analyst. Audits existing OG/social preview images, identifies missing or low-quality images, and creates an image generation plan with prompts for key pages. Does NOT auto-generate images.
-model: sonnet
+model: claude-haiku-5-5
+effort: medium
 maxTurns: 15
 tools: Read, Bash, Glob, Grep
 ---
